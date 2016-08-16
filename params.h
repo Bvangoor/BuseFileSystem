@@ -1,0 +1,47 @@
+#include <stdio.h>
+
+#define BITMAP_LENGTH 16
+#define BITMAP_STRING "0000000000000000"
+#define FUSE_STRING "FUSE"
+#define FUSE_STRING_LENGTH 4
+#define PAGE_SIZE 4096
+#define FILE_SIZE (1024*1024)
+#define INTEGER_BYTES_SIZE 16
+#define DELIMETER '\0'
+#define DELIMETER_LENGTH 1
+
+#define SUPERBLOCK_FIELDS 3
+#define SUPERBLOCK_LENGTH (FUSE_STRING_LENGTH+DELIMETER_LENGTH+BITMAP_LENGTH+DELIMETER_LENGTH+(SUPERBLOCK_FIELDS*INTEGER_BYTES_SIZE))
+
+#define METADATA_START_LOCATION SUPERBLOCK_LENGTH
+#define METADATA_LENGTH (PAGE_SIZE+INTEGER_BYTES_SIZE)
+#define TOTAL_METADATA_LENGTH (BITMAP_LENGTH*(PAGE_SIZE+INTEGER_BYTES_SIZE))
+
+#define INODE_START_LOCATION (SUPERBLOCK_LENGTH+TOTAL_METADATA_LENGTH)
+#define INODE_FIELDS 4
+#define INODE_LENGTH (INODE_FIELDS*INTEGER_BYTES_SIZE)
+#define TOTAL_INODE_LENGTH (BITMAP_LENGTH*INODE_LENGTH)
+
+#define DATA_START_LOCATION (SUPERBLOCK_LENGTH+TOTAL_METADATA_LENGTH+TOTAL_INODE_LENGTH)
+
+
+struct superblock {
+        char checksum[FUSE_STRING_LENGTH+DELIMETER_LENGTH];
+        char bitmap[BITMAP_LENGTH+DELIMETER_LENGTH];
+        int metadata_loc;
+        int data_loc;
+        int inode_loc;
+        void *inode_list;
+};
+
+struct metadata_node {
+	char filename[PAGE_SIZE];
+	int inode_no;
+};
+
+struct inode {
+	int data_loc;
+	int start_loc;
+	int end_loc;
+	int size;
+};
